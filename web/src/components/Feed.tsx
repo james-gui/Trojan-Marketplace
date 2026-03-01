@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { DollarSign, Clock, MapPin } from "lucide-react";
+import AcceptModal from "./AcceptModal";
 
 type ViewMode = "offers" | "requests";
 
@@ -14,6 +16,12 @@ export interface Listing {
     time: string;
     category: string;
     type: "Offer" | "Request";
+    posterName?: string;
+    posterEmail?: string;
+    posterImage?: string;
+    status?: string;
+    createdAt?: string;
+    accepterEmail?: string;
 }
 
 // Dummy Data
@@ -27,6 +35,9 @@ export const MOCK_OFFERS: Listing[] = [
         time: "Next 2 hours",
         category: "Food Delivery",
         type: "Offer",
+        posterName: "Jane Doe",
+        posterEmail: "jane@usc.edu",
+        status: "Open"
     },
     {
         id: "o2",
@@ -37,6 +48,9 @@ export const MOCK_OFFERS: Listing[] = [
         time: "Tonight, 8-10PM",
         category: "Tutoring",
         type: "Offer",
+        posterName: "Tommy Trojan",
+        posterEmail: "tommy@usc.edu",
+        status: "Open"
     },
     {
         id: "o3",
@@ -47,6 +61,9 @@ export const MOCK_OFFERS: Listing[] = [
         time: "Available Weekends",
         category: "Labor",
         type: "Offer",
+        posterName: "Traveler",
+        posterEmail: "traveler@usc.edu",
+        status: "Open"
     },
 ];
 
@@ -60,6 +77,9 @@ export const MOCK_REQUESTS: Listing[] = [
         time: "ASAP",
         category: "Errands",
         type: "Request",
+        posterName: "Alex Smith",
+        posterEmail: "alex@usc.edu",
+        status: "Open"
     },
     {
         id: "r2",
@@ -70,6 +90,9 @@ export const MOCK_REQUESTS: Listing[] = [
         time: "Today, 1:45PM",
         category: "Rentals",
         type: "Request",
+        posterName: "Sarah Johnson",
+        posterEmail: "sarah@usc.edu",
+        status: "Open"
     },
     {
         id: "r3",
@@ -80,6 +103,9 @@ export const MOCK_REQUESTS: Listing[] = [
         time: "Friday, 8:00AM",
         category: "Transportation",
         type: "Request",
+        posterName: "Mike Chen",
+        posterEmail: "mike@usc.edu",
+        status: "Open"
     },
     {
         id: "r4",
@@ -90,6 +116,9 @@ export const MOCK_REQUESTS: Listing[] = [
         time: "Flexible",
         category: "Digital Testing",
         type: "Request",
+        posterName: "Emily Davis",
+        posterEmail: "emily@usc.edu",
+        status: "Open"
     },
 ];
 
@@ -101,6 +130,9 @@ interface FeedProps {
 }
 
 export default function Feed({ activeView, searchQuery, offers, requests }: FeedProps) {
+    const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
     const isSearching = searchQuery.trim() !== "";
 
     // If searching, pull from both arrays so it acts as a global search.
@@ -142,6 +174,10 @@ export default function Feed({ activeView, searchQuery, offers, requests }: Feed
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.9, y: -20, transition: { duration: 0.2 } }}
                                 transition={{ duration: 0.4, type: "spring", bounce: 0.3 }}
+                                onClick={() => {
+                                    setSelectedListing(item);
+                                    setIsModalOpen(true);
+                                }}
                                 className="group relative flex flex-col p-6 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800/50 transition-colors cursor-pointer overflow-hidden"
                             >
                                 {/* Subtle Glow Effect */}
@@ -193,6 +229,21 @@ export default function Feed({ activeView, searchQuery, offers, requests }: Feed
                     )}
                 </AnimatePresence>
             </motion.div>
+
+            <AcceptModal
+                listing={selectedListing}
+                isOpen={isModalOpen}
+                onClose={() => {
+                    setIsModalOpen(false);
+                    setTimeout(() => setSelectedListing(null), 300); // clear after animation
+                }}
+                onListingAccepted={(id) => {
+                    // Locally, we would ideally filter this item out of the arrays since it's "Accepted" now.
+                    // But since the parent `Home` owns `offers`/`requests`, we'd need to lift this callback up.
+                    // For the UI mockup, we'll just let it stay in the list or log it.
+                    console.log(`Listing ${id} was accepted by the current user.`);
+                }}
+            />
         </div>
     );
 }

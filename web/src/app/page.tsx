@@ -1,19 +1,40 @@
 "use client";
 
-import { useState } from "react";
-import { Filter, Layers } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Filter, Layers, Loader2 } from "lucide-react";
 import Header from "@/components/Header";
 import ViewToggle from "@/components/ViewToggle";
 import SearchBar from "@/components/SearchBar";
-import Feed, { Listing, MOCK_OFFERS, MOCK_REQUESTS } from "@/components/Feed";
+import Feed, { Listing } from "@/components/Feed";
+import { getOpenListings } from "@/app/actions";
 
 type ViewMode = "offers" | "requests";
 
 export default function Home() {
   const [activeView, setActiveView] = useState<ViewMode>("offers");
   const [searchQuery, setSearchQuery] = useState("");
-  const [offers, setOffers] = useState<Listing[]>(MOCK_OFFERS);
-  const [requests, setRequests] = useState<Listing[]>(MOCK_REQUESTS);
+  const [offers, setOffers] = useState<Listing[]>([]);
+  const [requests, setRequests] = useState<Listing[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchListings = async () => {
+    setIsLoading(true);
+    try {
+      const result = await getOpenListings();
+      if (result.success && result.data) {
+        setOffers(result.data.filter((item: any) => item.type === "Offer"));
+        setRequests(result.data.filter((item: any) => item.type === "Request"));
+      }
+    } catch (error) {
+      console.error("Failed to fetch listings:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchListings();
+  }, []);
 
   const handleAddListing = (listing: any) => {
     const newListing: Listing = {
@@ -75,12 +96,19 @@ export default function Home() {
           </div>
 
           <div className="-mx-6 md:mx-0">
-            <Feed
-              activeView={activeView}
-              searchQuery={searchQuery}
-              offers={offers}
-              requests={requests}
-            />
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center py-32 text-slate-500">
+                <Loader2 className="w-8 h-8 animate-spin text-emerald-500 mb-4" />
+                <p>Loading marketplace...</p>
+              </div>
+            ) : (
+              <Feed
+                activeView={activeView}
+                searchQuery={searchQuery}
+                offers={offers}
+                requests={requests}
+              />
+            )}
           </div>
         </main>
 

@@ -6,6 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { motion, AnimatePresence } from "framer-motion";
 import { Code, MapPin, DollarSign, Clock, Layers } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { createListing } from "@/app/actions";
 
 import {
     Dialog,
@@ -51,9 +53,11 @@ export default function PostModal({
     onSubmitCallback
 }: {
     children: React.ReactNode;
-    onSubmitCallback: (data: FormValues) => void;
+    onSubmitCallback?: (data: any) => void;
 }) {
+    const { data: session } = useSession();
     const [open, setOpen] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -68,10 +72,44 @@ export default function PostModal({
         },
     });
 
-    const onSubmit = (data: FormValues) => {
-        onSubmitCallback(data);
-        setOpen(false);
-        form.reset();
+    const onSubmit = async (data: FormValues) => {
+        if (!session?.user?.email) {
+            alert("You must be signed in to post a request.");
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            const payload = {
+                ...data,
+                price: parseFloat(data.price),
+                posterName: session.user.name || "Anonymous USC Student",
+                posterEmail: session.user.email,
+                posterImage: session.user.image || undefined,
+            };
+
+            const result = await createListing(payload as any);
+
+            if (result.success) {
+                if (onSubmitCallback) {
+                    // Pass back the augmented payload so the UI updates immediately
+                    onSubmitCallback({
+                        ...payload,
+                        id: result.id,
+                        status: "Open"
+                    });
+                }
+                setOpen(false);
+                form.reset();
+            } else {
+                console.error(result.error);
+                alert("Failed to create the listing.");
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const currentType = form.watch("type");
@@ -251,8 +289,8 @@ export default function PostModal({
                             </div>
                         </div>
 
-                        <Button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-6 rounded-xl shadow-lg shadow-emerald-500/20">
-                            {currentType === "Offer" ? "Post Offer" : "Submit Request"}
+                        <Button disabled={isSubmitting} type="submit" className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-6 rounded-xl shadow-lg shadow-emerald-500/20">
+                            {isSubmitting ? "Posting..." : (currentType === "Offer" ? "Post Offer" : "Submit Request")}
                         </Button>
 
                     </form>

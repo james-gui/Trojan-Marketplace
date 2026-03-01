@@ -1,16 +1,6 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
-import { CosmosClient } from "@azure/cosmos";
-
-// Initialize Cosmos DB Client
-// This will only connect if the environment variables are present
-const endpoint = process.env.COSMOS_ENDPOINT || "";
-const key = process.env.COSMOS_KEY || "";
-const client = endpoint && key ? new CosmosClient({ endpoint, key }) : null;
-
-// Connect to the Hackathon database and Users container
-const databaseId = "TrojanMarketDB";
-const containerId = "Users";
+import { getUsersContainer } from "@/lib/cosmos";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
     providers: [
@@ -35,10 +25,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             }
 
             // 2. Upsert the user into Cosmos DB
-            if (client && user.email) {
+            if (user.email) {
                 try {
-                    const database = client.database(databaseId);
-                    const container = database.container(containerId);
+                    const container = await getUsersContainer();
 
                     // Create the user document structure
                     const userDocument = {
