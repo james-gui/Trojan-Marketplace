@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { SessionProvider } from "next-auth/react";
 import "./globals.css";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 
@@ -28,9 +29,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-950 text-slate-50`}
       >
-        <SmoothScrollProvider>
-          {children}
-        </SmoothScrollProvider>
+        <SessionProvider>
+          <SmoothScrollProvider>
+            {children}
+          </SmoothScrollProvider>
+        </SessionProvider>
       </body>
     </html>
   );

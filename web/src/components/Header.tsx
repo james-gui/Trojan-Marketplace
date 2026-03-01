@@ -2,8 +2,12 @@
 
 import { motion } from "framer-motion";
 import { Button } from "./ui/button";
+import { useSession, signOut } from "next-auth/react";
+import Link from "next/link";
+import { LogOut } from "lucide-react";
 
 export default function Header() {
+    const { data: session } = useSession();
     return (
         <motion.header
             initial={{ y: -20, opacity: 0 }}
@@ -21,9 +25,27 @@ export default function Header() {
             </div>
 
             <nav className="flex items-center gap-2 sm:gap-4">
-                <Button variant="ghost" size="sm" className="hidden sm:inline-flex text-slate-400 hover:text-white rounded-full">
-                    Sign In
-                </Button>
+                {session ? (
+                    <div className="flex items-center gap-3">
+                        <img
+                            src={session.user?.image || ""}
+                            alt="Profile"
+                            className="w-8 h-8 rounded-full border border-slate-700"
+                        />
+                        <button
+                            onClick={() => signOut()}
+                            className="text-slate-400 hover:text-white transition-colors"
+                        >
+                            <LogOut className="w-4 h-4" />
+                        </button>
+                    </div>
+                ) : (
+                    <Link href="/login">
+                        <Button variant="ghost" size="sm" className="hidden sm:inline-flex text-slate-400 hover:text-white rounded-full">
+                            Sign In
+                        </Button>
+                    </Link>
+                )}
                 <Button size="sm" className="rounded-full bg-white text-slate-950 hover:bg-slate-200 text-xs sm:text-sm h-8 sm:h-9">
                     Post Request
                 </Button>
