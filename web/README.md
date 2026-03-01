@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ✌️ Trojan Marketplace (Web Frontend)
 
-## Getting Started
+This is the main Next.js web application for the Trojan Marketplace project, built for the SEP Hackathon.
 
-First, run the development server:
+## ✨ Features
+
+- **Order Book**: Real-time view of all open and accepted listings.
+- **Task Management**: Create, accept, and complete tasks with integrated status updates.
+- **Onboarding**: Multi-stage user registration and profile creation.
+- **Cosmos DB Integration**: Direct interaction with NoSQL collections via Server Actions.
+- **ACS Notifications**: Integrated email handshake logic using Azure Communication Services.
+
+## 🛠️ Tech Stack
+
+- **Framework**: [Next.js 15 (App Router)](https://nextjs.org/)
+- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
+- **State/Logic**: [Server Actions](https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations)
+- **Database**: [Azure Cosmos DB](https://azure.microsoft.com/en-us/products/cosmos-db/)
+- **UI Components**: [Shadcn UI](https://ui.shadcn.com/)
+- **Animations**: [Framer Motion](https://www.framer.com/motion/)
+- **Auth**: [NextAuth.js](https://next-auth.js.org/) (Google Provider)
+- **SMS/Email**: [Azure Communication Services](https://azure.microsoft.com/en-us/products/communication-services/) & [Twilio](https://www.twilio.com/)
+
+## 🏗️ Getting Started
+
+### 1. Install Dependencies
+
+```bash
+npm install
+```
+
+### 2. Environment Configuration
+
+Copy `.env.local` and provide your credentials:
+
+```bash
+AUTH_SECRET=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+COSMOS_ENDPOINT=
+COSMOS_KEY=
+ACS_CONNECTION_STRING=
+ACS_PHONE_NUMBER=
+ACS_FROM_EMAIL=
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+TWILIO_PHONE_NUMBER=
+```
+
+### 3. Run Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📁 Directory Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `src/app`: Page components and server actions.
+- `src/components`: Reusable UI elements (Buttons, Modals, Cards).
+- `src/lib`: Logic for database connection, email/SMS clients, and utility functions.
+- `public`: Static assets (Logos, Icons).
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+Refer to the [Root README](../README.md) for full project architecture and system overview.
