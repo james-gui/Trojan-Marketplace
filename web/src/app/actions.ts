@@ -116,3 +116,37 @@ export async function acceptListing(listingId: string, accepterEmail: string) {
         return { success: false, error: error.message };
     }
 }
+
+export async function uploadProof(listingId: string, proofImageUrl: string) {
+    try {
+        const container = await getListingsContainer();
+        const { resource: item } = await container.item(listingId, listingId).read();
+
+        if (!item) return { success: false, error: "Listing not found" };
+
+        item.proofImageUrl = proofImageUrl;
+        await container.item(listingId, listingId).replace(item);
+
+        return { success: true };
+    } catch (error: any) {
+        console.error("[SERVER ACTION] Failed to upload proof:", error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function completeListing(listingId: string) {
+    try {
+        const container = await getListingsContainer();
+        const { resource: item } = await container.item(listingId, listingId).read();
+
+        if (!item) return { success: false, error: "Listing not found" };
+
+        item.status = "Completed";
+        await container.item(listingId, listingId).replace(item);
+
+        return { success: true };
+    } catch (error: any) {
+        console.error("[SERVER ACTION] Failed to complete listing:", error);
+        return { success: false, error: error.message };
+    }
+}
