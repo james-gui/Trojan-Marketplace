@@ -5,17 +5,34 @@ import { Filter, Layers } from "lucide-react";
 import Header from "@/components/Header";
 import ViewToggle from "@/components/ViewToggle";
 import SearchBar from "@/components/SearchBar";
-import Feed from "@/components/Feed";
+import Feed, { Listing, MOCK_OFFERS, MOCK_REQUESTS } from "@/components/Feed";
 
 type ViewMode = "offers" | "requests";
 
 export default function Home() {
   const [activeView, setActiveView] = useState<ViewMode>("offers");
   const [searchQuery, setSearchQuery] = useState("");
+  const [offers, setOffers] = useState<Listing[]>(MOCK_OFFERS);
+  const [requests, setRequests] = useState<Listing[]>(MOCK_REQUESTS);
+
+  const handleAddListing = (listing: Omit<Listing, 'id'>) => {
+    const newListing = {
+      ...listing,
+      id: Math.random().toString(36).substr(2, 9),
+    };
+
+    if (listing.type === "Offer") {
+      setOffers([newListing, ...offers]);
+      setActiveView("offers");
+    } else {
+      setRequests([newListing, ...requests]);
+      setActiveView("requests");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col items-center">
-      <Header />
+      <Header onAddListing={handleAddListing} />
 
       <div className="w-full max-w-7xl mx-auto flex flex-col md:flex-row pt-20 sm:pt-24 px-4 sm:px-6 md:px-8">
 
@@ -57,7 +74,12 @@ export default function Home() {
           </div>
 
           <div className="-mx-6 md:mx-0">
-            <Feed activeView={activeView} searchQuery={searchQuery} />
+            <Feed
+              activeView={activeView}
+              searchQuery={searchQuery}
+              offers={offers}
+              requests={requests}
+            />
           </div>
         </main>
 

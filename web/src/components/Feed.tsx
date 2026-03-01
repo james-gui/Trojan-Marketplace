@@ -5,7 +5,7 @@ import { DollarSign, Clock, MapPin } from "lucide-react";
 
 type ViewMode = "offers" | "requests";
 
-interface Listing {
+export interface Listing {
     id: string;
     title: string;
     description: string;
@@ -17,7 +17,7 @@ interface Listing {
 }
 
 // Dummy Data
-const MOCK_OFFERS: Listing[] = [
+export const MOCK_OFFERS: Listing[] = [
     {
         id: "o1",
         title: "Will wait in line for you at Dulce",
@@ -50,7 +50,7 @@ const MOCK_OFFERS: Listing[] = [
     },
 ];
 
-const MOCK_REQUESTS: Listing[] = [
+export const MOCK_REQUESTS: Listing[] = [
     {
         id: "r1",
         title: "Need someone to pick up a package",
@@ -96,15 +96,17 @@ const MOCK_REQUESTS: Listing[] = [
 interface FeedProps {
     activeView: ViewMode;
     searchQuery: string;
+    offers: Listing[];
+    requests: Listing[];
 }
 
-export default function Feed({ activeView, searchQuery }: FeedProps) {
+export default function Feed({ activeView, searchQuery, offers, requests }: FeedProps) {
     const isSearching = searchQuery.trim() !== "";
 
     // If searching, pull from both arrays so it acts as a global search.
     const rawData = isSearching
-        ? [...MOCK_OFFERS, ...MOCK_REQUESTS]
-        : (activeView === "offers" ? MOCK_OFFERS : MOCK_REQUESTS);
+        ? [...offers, ...requests]
+        : (activeView === "offers" ? offers : requests);
 
     // Filter data based on search query
     const data = rawData.filter(item => {

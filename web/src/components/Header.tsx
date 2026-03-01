@@ -5,8 +5,9 @@ import { Button } from "./ui/button";
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { LogOut } from "lucide-react";
+import PostModal from "./PostModal";
 
-export default function Header() {
+export default function Header({ onAddListing }: { onAddListing?: (data: any) => void }) {
     const { data: session } = useSession();
     return (
         <motion.header
@@ -46,9 +47,17 @@ export default function Header() {
                         </Button>
                     </Link>
                 )}
-                <Button size="sm" className="rounded-full bg-white text-slate-950 hover:bg-slate-200 text-xs sm:text-sm h-8 sm:h-9">
-                    Post Request
-                </Button>
+                {onAddListing ? (
+                    <PostModal onSubmitCallback={onAddListing}>
+                        <Button size="sm" className="rounded-full bg-white text-slate-950 hover:bg-slate-200 text-xs sm:text-sm h-8 sm:h-9">
+                            Post Request
+                        </Button>
+                    </PostModal>
+                ) : (
+                    <Button size="sm" className="rounded-full bg-white text-slate-950 hover:bg-slate-200 text-xs sm:text-sm h-8 sm:h-9">
+                        Post Request
+                    </Button>
+                )}
             </nav>
         </motion.header>
     );
