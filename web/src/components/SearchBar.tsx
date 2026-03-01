@@ -14,7 +14,7 @@ export default function SearchBar({ value, onChange }: SearchBarProps) {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4 }}
-            className="w-full max-w-md mx-auto mb-8 px-4 sm:px-0"
+            className="w-full"
         >
             <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">

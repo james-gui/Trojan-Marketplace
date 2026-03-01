@@ -119,7 +119,7 @@ export default function Feed({ activeView, searchQuery }: FeedProps) {
     });
 
     return (
-        <div className="max-w-6xl mx-auto px-6 pb-32 min-h-screen">
+        <div className="w-full pb-32">
             <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <AnimatePresence mode="popLayout">
                     {data.length === 0 ? (
@@ -150,8 +150,8 @@ export default function Feed({ activeView, searchQuery }: FeedProps) {
                                         <div className="flex gap-2 items-center flex-wrap">
                                             {isSearching && (
                                                 <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${item.type === "Offer"
-                                                        ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/20"
-                                                        : "bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/20"
+                                                    ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/20"
+                                                    : "bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/20"
                                                     }`}>
                                                     {item.type}
                                                 </span>
