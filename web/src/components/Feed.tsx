@@ -13,6 +13,7 @@ interface Listing {
     location: string;
     time: string;
     category: string;
+    type: "Offer" | "Request";
 }
 
 // Dummy Data
@@ -25,6 +26,7 @@ const MOCK_OFFERS: Listing[] = [
         location: "USC Village",
         time: "Next 2 hours",
         category: "Food Delivery",
+        type: "Offer",
     },
     {
         id: "o2",
@@ -34,6 +36,7 @@ const MOCK_OFFERS: Listing[] = [
         location: "Leavey Library",
         time: "Tonight, 8-10PM",
         category: "Tutoring",
+        type: "Offer",
     },
     {
         id: "o3",
@@ -43,6 +46,7 @@ const MOCK_OFFERS: Listing[] = [
         location: "Webb Tower",
         time: "Available Weekends",
         category: "Labor",
+        type: "Offer",
     },
 ];
 
@@ -55,6 +59,7 @@ const MOCK_REQUESTS: Listing[] = [
         location: "McCarthy -> Birnkrant",
         time: "ASAP",
         category: "Errands",
+        type: "Request",
     },
     {
         id: "r2",
@@ -64,6 +69,7 @@ const MOCK_REQUESTS: Listing[] = [
         location: "Taper Hall",
         time: "Today, 1:45PM",
         category: "Rentals",
+        type: "Request",
     },
     {
         id: "r3",
@@ -73,6 +79,7 @@ const MOCK_REQUESTS: Listing[] = [
         location: "Gateway -> LAX",
         time: "Friday, 8:00AM",
         category: "Transportation",
+        type: "Request",
     },
     {
         id: "r4",
@@ -82,6 +89,7 @@ const MOCK_REQUESTS: Listing[] = [
         location: "Remote / Anywhere",
         time: "Flexible",
         category: "Digital Testing",
+        type: "Request",
     },
 ];
 
@@ -91,14 +99,24 @@ interface FeedProps {
 }
 
 export default function Feed({ activeView, searchQuery }: FeedProps) {
-    const rawData = activeView === "offers" ? MOCK_OFFERS : MOCK_REQUESTS;
+    const isSearching = searchQuery.trim() !== "";
+
+    // If searching, pull from both arrays so it acts as a global search.
+    const rawData = isSearching
+        ? [...MOCK_OFFERS, ...MOCK_REQUESTS]
+        : (activeView === "offers" ? MOCK_OFFERS : MOCK_REQUESTS);
 
     // Filter data based on search query
-    const data = rawData.filter(item =>
-        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.category.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const data = rawData.filter(item => {
+        if (!isSearching) return true;
+        const q = searchQuery.toLowerCase();
+        return (
+            item.title.toLowerCase().includes(q) ||
+            item.description.toLowerCase().includes(q) ||
+            item.category.toLowerCase().includes(q) ||
+            item.location.toLowerCase().includes(q)
+        );
+    });
 
     return (
         <div className="max-w-6xl mx-auto px-6 pb-32 min-h-screen">
@@ -129,9 +147,19 @@ export default function Feed({ activeView, searchQuery }: FeedProps) {
 
                                 <div className="relative z-10 flex flex-col h-full space-y-4">
                                     <div className="flex items-start justify-between">
-                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800 text-slate-300">
-                                            {item.category}
-                                        </span>
+                                        <div className="flex gap-2 items-center flex-wrap">
+                                            {isSearching && (
+                                                <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${item.type === "Offer"
+                                                        ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/20"
+                                                        : "bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/20"
+                                                    }`}>
+                                                    {item.type}
+                                                </span>
+                                            )}
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800 text-slate-300 shadow-sm border border-slate-700/50">
+                                                {item.category}
+                                            </span>
+                                        </div>
                                         <div className="flex items-center text-emerald-400 font-semibold bg-emerald-400/10 px-2 py-1 rounded-md">
                                             <DollarSign className="w-4 h-4 mr-0.5" />
                                             {item.price.toFixed(2)}
