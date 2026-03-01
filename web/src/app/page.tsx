@@ -15,9 +15,10 @@ export default function Home() {
   const [offers, setOffers] = useState<Listing[]>(MOCK_OFFERS);
   const [requests, setRequests] = useState<Listing[]>(MOCK_REQUESTS);
 
-  const handleAddListing = (listing: Omit<Listing, 'id'>) => {
-    const newListing = {
+  const handleAddListing = (listing: any) => {
+    const newListing: Listing = {
       ...listing,
+      price: typeof listing.price === "string" ? parseFloat(listing.price) : listing.price,
       id: Math.random().toString(36).substr(2, 9),
     };
 
