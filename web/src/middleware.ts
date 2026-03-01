@@ -3,7 +3,10 @@ import { auth } from "@/auth";
 export default auth((req) => {
     const { nextUrl } = req;
     const isLoggedIn = !!req.auth;
-    const isOnboarded = req.auth?.user?.isOnboarded === true;
+    // Check both session.user.isOnboarded and the root token property
+    const isOnboarded =
+        (req.auth?.user as any)?.isOnboarded === true ||
+        (req.auth as any)?.isOnboarded === true;
 
     // Define route types
     const isAuthRoute = nextUrl.pathname.startsWith("/login");

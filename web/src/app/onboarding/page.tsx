@@ -16,8 +16,10 @@ function OnboardingSteps() {
     useEffect(() => {
         if (status === "unauthenticated") {
             router.push("/");
+        } else if (session?.user?.isOnboarded) {
+            router.push("/dashboard");
         }
-    }, [status, router]);
+    }, [status, session, router]);
 
     if (status === "loading") {
         return (

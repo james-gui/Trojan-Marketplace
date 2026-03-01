@@ -46,7 +46,7 @@ const graduationYears = [
 
 export function ProfileSetup() {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, update } = useSession();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     major: '',
@@ -76,6 +76,7 @@ export function ProfileSetup() {
     setIsSubmitting(false);
 
     if (res.success) {
+      await update({ isOnboarded: true });
       router.push('/onboarding?step=categories');
     } else {
       alert("Failed to save profile. " + res.error);

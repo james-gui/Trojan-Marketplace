@@ -9,6 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@azure/communication-email": "^1.1.0",
+    "@azure/communication-sms": "^1.2.0-beta.4",
     "@azure/cosmos": "^4.9.1",
     "@hookform/resolvers": "^5.2.2",
     "@studio-freight/lenis": "^1.0.42",
@@ -32,6 +34,7 @@
     "recharts": "^3.7.0",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.5.0",
+    "twilio": "^5.12.2",
     "vaul": "^1.1.2",
     "zod": "^4.3.6"
   },

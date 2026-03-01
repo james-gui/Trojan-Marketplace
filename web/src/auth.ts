@@ -27,10 +27,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             if (user.email) {
                 try {
                     const container = await getUsersContainer();
+                    const userEmail = user.email.toLowerCase();
                     const userDocument = {
-                        id: user.id || user.email,
+                        id: userEmail,
                         name: user.name,
-                        email: user.email,
+                        email: userEmail,
                         image: user.image,
                         provider: account?.provider,
                         lastLogin: new Date().toISOString(),
@@ -46,29 +47,37 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             // Initial sign in
             if (user) {
                 token.id = user.id;
+                token.email = user.email;
             }
 
-            // Fetch and cache user data if not present or on update
+            // Manual session update from client
+            if (trigger === "update" && session) {
+                if (session.isOnboarded !== undefined) token.isOnboarded = session.isOnboarded;
+                if (session.profilePicture) token.profilePicture = session.profilePicture;
+                if (session.name) token.name = session.name;
+                return token;
+            }
+
+            // Fetch and cache user data if missing
             if (!token.email) return token;
 
-            // Only fetch from DB if we don't have the onboarding status yet, or if alerted to update
-            if (token.isOnboarded === undefined || trigger === "update") {
+            // Use item.read() for maximal performance (O(1) vs Query O(N))
+            if (token.isOnboarded === undefined) {
                 try {
                     const container = await getUsersContainer();
-                    const querySpec = {
-                        query: "SELECT * FROM c WHERE c.email = @email",
-                        parameters: [{ name: "@email", value: token.email }]
-                    };
-                    const { resources } = await container.items.query(querySpec).fetchAll();
-                    if (resources.length > 0) {
-                        token.isOnboarded = resources[0].isOnboarded === true;
-                        token.profilePicture = resources[0].profilePicture || resources[0].image;
-                        token.name = resources[0].name || token.name;
+                    const userId = (token.email as string).toLowerCase();
+                    const { resource } = await container.item(userId, userId).read();
+
+                    if (resource) {
+                        token.isOnboarded = resource.isOnboarded === true;
+                        token.profilePicture = resource.profilePicture || resource.image;
+                        token.name = resource.name || token.name;
                     } else {
                         token.isOnboarded = false;
                     }
                 } catch (e) {
                     console.error("[AUTH] JWT Fetch Error", e);
+                    token.isOnboarded = false;
                 }
             }
 

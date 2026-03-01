@@ -45,9 +45,9 @@ export function CategorySelection() {
   };
 
   const handleContinue = async () => {
-    // Refresh the session so the middleware sees we are onboarded
-    await update();
-    router.push('/dashboard');
+    // Refresh the session one last time and redirect to dashboard
+    await update({ isOnboarded: true });
+    window.location.href = '/dashboard';
   };
 
   return (

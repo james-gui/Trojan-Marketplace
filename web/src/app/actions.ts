@@ -1,6 +1,7 @@
 "use server";
 
 import { getListingsContainer, getUsersContainer } from "@/lib/cosmos";
+import { sendHandshakeEmail } from "@/lib/email";
 
 // ----------------------------------------------------------------------
 // Users & Onboarding
@@ -28,16 +29,19 @@ export async function getUserProfile(email: string) {
 export async function completeOnboarding(email: string, name: string, phone: string, profilePic: string) {
     try {
         const container = await getUsersContainer();
-        const querySpec = {
-            query: "SELECT * FROM c WHERE c.email = @email",
-            parameters: [{ name: "@email", value: email }]
-        };
-        const { resources } = await container.items.query(querySpec).fetchAll();
+        const userEmail = email.toLowerCase();
+        const { resource: user } = await container.item(userEmail, userEmail).read();
 
-        if (resources.length > 0) {
-            const user = resources[0];
+        if (user) {
             user.name = name;
-            user.phoneNumber = phone;
+
+            // Normalize phone number to E.164 (+1XXXXXXXXXX)
+            let cleaned = phone.replace(/\D/g, "");
+            if (cleaned.length === 10) {
+                cleaned = "1" + cleaned;
+            }
+            user.phoneNumber = "+" + cleaned;
+
             user.profilePicture = profilePic;
             user.isOnboarded = true;
 
@@ -73,6 +77,7 @@ export async function createListing(data: ListingPayload) {
         const document = {
             id: listingId,
             ...data,
+            posterEmail: data.posterEmail.toLowerCase(),
             status: "Open", // Can be "Open" or "Accepted"
             createdAt: new Date().toISOString(),
         };
@@ -135,10 +140,6 @@ export async function acceptListing(listingId: string, accepterEmail: string) {
     try {
         const container = await getListingsContainer();
 
-        // In a real app, we'd first read the listing to ensure it exists and is "Open"
-        // For this hackathon scope, we'll try to do a targeted patch operation if supported,
-        // or just a read-modify-write.
-
         const { resource: item } = await container.item(listingId, listingId).read();
 
         if (!item) {
@@ -155,10 +156,44 @@ export async function acceptListing(listingId: string, accepterEmail: string) {
 
         // Modify and replace
         item.status = "Accepted";
-        item.accepterEmail = accepterEmail;
+        const sanitizedAccepterEmail = accepterEmail.toLowerCase();
+        item.accepterEmail = sanitizedAccepterEmail;
         item.acceptedAt = new Date().toISOString();
 
         await container.item(listingId, listingId).replace(item);
+
+        // --- EMAIL HANDSHAKE LOGIC ---
+        try {
+            console.log(`[EMAIL DEBUG] Starting Handshake flow for ${item.title}`);
+            const usersContainer = await getUsersContainer();
+
+            const posterEmail = item.posterEmail.toLowerCase();
+            const { resource: poster } = await usersContainer.item(posterEmail, posterEmail).read();
+            const { resource: accepter } = await usersContainer.item(sanitizedAccepterEmail, sanitizedAccepterEmail).read();
+
+            if (poster && accepter) {
+                const subject = `Trojan Marketplace: Match Found for "${item.title}"`;
+                const priceStr = `$${typeof item.price === "number" ? item.price.toFixed(2) : item.price}`;
+
+                console.log(`[EMAIL DEBUG] Sending handshake between ${posterEmail} and ${sanitizedAccepterEmail}`);
+
+                await Promise.all([
+                    sendHandshakeEmail(
+                        posterEmail,
+                        subject,
+                        `Hi ${poster.name},\n\nGood news! Your listing "${item.title}" has been accepted by ${accepter.name} for ${priceStr}.\n\nYou can reach them at ${sanitizedAccepterEmail} or ${accepter.phoneNumber} to coordinate your next steps.\n\nBest,\nThe Trojan Marketplace Team`
+                    ),
+                    sendHandshakeEmail(
+                        sanitizedAccepterEmail,
+                        subject,
+                        `Hi ${accepter.name},\n\nYou have successfully accepted the listing "${item.title}" for ${priceStr} from ${poster.name}.\n\nYou can reach them at ${posterEmail} or ${poster.phoneNumber} to coordinate your next steps.\n\nBest,\nThe Trojan Marketplace Team`
+                    )
+                ]);
+                console.log("[EMAIL DEBUG] Handshake emails sent successfully.");
+            }
+        } catch (emailError) {
+            console.error("[SERVER ACTION] Handshake email failed:", emailError);
+        }
 
         return { success: true };
     } catch (error: any) {
