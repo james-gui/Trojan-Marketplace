@@ -1,66 +1,53 @@
-# ✌️ Trojan Marketplace (Web Frontend)
+# ✌️ Trojan Marketplace
 
-This is the main Next.js web application for the Trojan Marketplace project, built for the SEP Hackathon.
+**Scaling the campus economy with Escrow Credits and Vision AI verification.**
 
-## ✨ Features
+Trojan Marketplace is a localized service economy built exclusively for the USC community. It allows students to trade services—from laundry and moving help to coffee deliveries—using a secure, AI-orchestrated platform. 
 
-- **Order Book**: Real-time view of all open and accepted listings.
-- **Task Management**: Create, accept, and complete tasks with integrated status updates.
-- **Onboarding**: Multi-stage user registration and profile creation.
-- **Cosmos DB Integration**: Direct interaction with NoSQL collections via Server Actions.
-- **ACS Notifications**: Integrated email handshake logic using Azure Communication Services.
+## ✨ Key Features
+- **Dual Marketplace**: Seamlessly toggle between offering your skills and requesting help.
+- **Handshake Connection**: Instant email notifications connect buyers and sellers the moment a task is accepted.
+- **Escrow Credit System**: Protects both parties by holding funds securely until the work is verified.
+- **Vision AI Verification**: Powered by GPT-4o, our AI automatically analyzes proof-of-work images to verify task completion before releasing funds.
+- **Trojan-Only Auth**: Restricted to `@usc.edu` domains to ensure a trusted, exclusive network.
 
 ## 🛠️ Tech Stack
+- **Frontend**: Next.js 15 (App Router), Framer Motion (Animations), Vanilla CSS.
+- **Database**: Azure Cosmos DB (SQL API) for globally scalable storage.
+- **AI Core**: Azure OpenAI (GPT-4o Vision API) for intelligent proof verification.
+- **Communications**: Azure Communication Services for P2P "Handshake" emails.
+- **Authentication**: NextAuth.js with Google OAuth (USC Restricted).
+- **Icons**: Lucide React.
 
-- **Framework**: [Next.js 15 (App Router)](https://nextjs.org/)
-- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
-- **State/Logic**: [Server Actions](https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations)
-- **Database**: [Azure Cosmos DB](https://azure.microsoft.com/en-us/products/cosmos-db/)
-- **UI Components**: [Shadcn UI](https://ui.shadcn.com/)
-- **Animations**: [Framer Motion](https://www.framer.com/motion/)
-- **Auth**: [NextAuth.js](https://next-auth.js.org/) (Google Provider)
-- **SMS/Email**: [Azure Communication Services](https://azure.microsoft.com/en-us/products/communication-services/) & [Twilio](https://www.twilio.com/)
+## 🚀 Deployment Guide (Vercel)
 
-## 🏗️ Getting Started
+Trojan Marketplace is optimized for deployment on Vercel. Follow these steps to get your own instance running:
 
-### 1. Install Dependencies
+### 1. Environment Variables
+You must configure the following variables in your Vercel project dashboard:
+- `AUTH_SECRET`: Generate with `npx auth secret`
+- `GOOGLE_CLIENT_ID`: From Google Cloud Console
+- `GOOGLE_CLIENT_SECRET`: From Google Cloud Console
+- `COSMOS_ENDPOINT`: Your Azure Cosmos DB URI
+- `COSMOS_KEY`: Your Azure Cosmos DB Primary Key
+- `AZURE_OPENAI_ENDPOINT`: Your Azure OpenAI Resource endpoint
+- `AZURE_OPENAI_API_KEY`: Your Azure OpenAI API Key
+- `AZURE_OPENAI_DEPLOYMENT_NAME`: The name of your GPT-4o model deployment
+- `ACS_CONNECTION_STRING`: Azure Communication Services connection string
+- `ACS_FROM_EMAIL`: Your verified sender email on ACS
 
-```bash
-npm install
-```
+### 2. Update OAuth Redirects
+In your **Google Cloud Console**, update your OAuth 2.0 credentials to include:
+- **Authorized JavaScript origins**: `https://your-app-name.vercel.app`
+- **Authorized redirect URIs**: `https://your-app-name.vercel.app/api/auth/callback/google`
 
-### 2. Environment Configuration
+### 3. Database Setup
+The application uses **Azure Cosmos DB**. Ensure you have two containers created in a database named `TrojanMarketDB`:
+1. `Users` (Partition Key: `/id`)
+2. `Listings` (Partition Key: `/id`)
 
-Copy `.env.local` and provide your credentials:
-
-```bash
-AUTH_SECRET=
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-COSMOS_ENDPOINT=
-COSMOS_KEY=
-ACS_CONNECTION_STRING=
-ACS_PHONE_NUMBER=
-ACS_FROM_EMAIL=
-TWILIO_ACCOUNT_SID=
-TWILIO_AUTH_TOKEN=
-TWILIO_PHONE_NUMBER=
-```
-
-### 3. Run Development Server
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) to view the application.
-
-## 📁 Directory Structure
-
-- `src/app`: Page components and server actions.
-- `src/components`: Reusable UI elements (Buttons, Modals, Cards).
-- `src/lib`: Logic for database connection, email/SMS clients, and utility functions.
-- `public`: Static assets (Logos, Icons).
+## 🤝 Project Background
+Built during the SEP Hackathon 2026. This project was born from the need for a standardized, secure platform for student gigs, moving away from disorganized group chats into a professional, AI-verified marketplace.
 
 ---
-Refer to the [Root README](../README.md) for full project architecture and system overview.
+Built with ❤️ by Trojans, for Trojans. **Fight On!** ✌️
