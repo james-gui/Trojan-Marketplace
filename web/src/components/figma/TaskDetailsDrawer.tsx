@@ -17,25 +17,36 @@ interface TaskDetailsDrawerProps {
     timeAgo?: string;
   } | null;
   readOnly?: boolean;
+  onAccept?: () => Promise<void>;
 }
 
-export function TaskDetailsDrawer({ isOpen, onClose, task, readOnly = false }: TaskDetailsDrawerProps) {
+export function TaskDetailsDrawer({ isOpen, onClose, task, readOnly = false, onAccept }: TaskDetailsDrawerProps) {
   const router = useRouter();
-
+  const [isAccepting, setIsAccepting] = React.useState(false);
   if (!isOpen || !task) return null;
 
   const priceValue = parseFloat(task.price.replace('$', ''));
   const depositAmount = (priceValue * 0.1).toFixed(2);
-  const remainingBalance = (100 - priceValue * 0.1).toFixed(2);
+  const remainingBalance = (100 - (priceValue * 0.1)).toFixed(2);
 
-  const handlePost = () => {
-    // Close drawer
-    onClose();
-
-    // Navigate to engagements with a small delay to allow drawer to close
-    setTimeout(() => {
+  const handlePost = async () => {
+    if (!onAccept) {
+      onClose();
       router.push('/engagements');
-    }, 100);
+      return;
+    }
+
+    setIsAccepting(true);
+    try {
+      await onAccept();
+      onClose();
+      router.push('/engagements');
+    } catch (error) {
+      console.error("Failed to accept task:", error);
+      alert("Something went wrong while accepting the task.");
+    } finally {
+      setIsAccepting(false);
+    }
   };
 
   return (
@@ -163,8 +174,9 @@ export function TaskDetailsDrawer({ isOpen, onClose, task, readOnly = false }: T
                   size="lg"
                   className="flex-1"
                   onClick={handlePost}
+                  disabled={isAccepting}
                 >
-                  Accept & Post
+                  {isAccepting ? "Accepting..." : "Accept & Post"}
                 </DSButton>
               </>
             )}

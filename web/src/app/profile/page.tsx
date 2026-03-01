@@ -34,7 +34,7 @@ interface Stats {
 // ──────────────────────────────────────────────
 function handleSignOut() {
     if (confirm("Are you sure you want to sign out?")) {
-        signOut({ callbackUrl: "/login" });
+        signOut({ callbackUrl: "/" });
     }
 }
 

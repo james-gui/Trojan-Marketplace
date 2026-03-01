@@ -17,10 +17,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         error: "/login", // Redirect back to login if they fail the usc.edu check
     },
     callbacks: {
-        async signIn({ user, account, profile }) {
+        async signIn({ user, account }) {
             // 1. Verify it is a USC email
             if (!user.email?.endsWith("@usc.edu")) {
-                // Return a custom error URL string that NextAuth will redirect to
                 return "/login?error=AccessDenied";
             }
 
@@ -28,33 +27,59 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             if (user.email) {
                 try {
                     const container = await getUsersContainer();
-
-                    // Create the user document structure
                     const userDocument = {
-                        id: user.id || user.email, // Cosmos requires an 'id' string
+                        id: user.id || user.email,
                         name: user.name,
                         email: user.email,
                         image: user.image,
                         provider: account?.provider,
                         lastLogin: new Date().toISOString(),
                     };
-
-                    // Upsert means "Insert if it doesn't exist, Update if it does"
                     await container.items.upsert(userDocument);
-                    console.log(`[AUTH] Successfully syned ${user.email} to Cosmos DB`);
                 } catch (error) {
                     console.error("[AUTH] Failed to sync user to Cosmos DB:", error);
-                    // We still let them log in even if the sync fails, so the hackathon demo doesn't completely break
+                }
+            }
+            return true;
+        },
+        async jwt({ token, user, trigger, session }) {
+            // Initial sign in
+            if (user) {
+                token.id = user.id;
+            }
+
+            // Fetch and cache user data if not present or on update
+            if (!token.email) return token;
+
+            // Only fetch from DB if we don't have the onboarding status yet, or if alerted to update
+            if (token.isOnboarded === undefined || trigger === "update") {
+                try {
+                    const container = await getUsersContainer();
+                    const querySpec = {
+                        query: "SELECT * FROM c WHERE c.email = @email",
+                        parameters: [{ name: "@email", value: token.email }]
+                    };
+                    const { resources } = await container.items.query(querySpec).fetchAll();
+                    if (resources.length > 0) {
+                        token.isOnboarded = resources[0].isOnboarded === true;
+                        token.profilePicture = resources[0].profilePicture || resources[0].image;
+                        token.name = resources[0].name || token.name;
+                    } else {
+                        token.isOnboarded = false;
+                    }
+                } catch (e) {
+                    console.error("[AUTH] JWT Fetch Error", e);
                 }
             }
 
-            // 3. Allow sign in
-            return true;
+            return token;
         },
         async session({ session, token }) {
-            // Pass the user ID to the client session object
-            if (session.user && token.sub) {
-                session.user.id = token.sub;
+            if (session.user) {
+                session.user.id = token.id as string;
+                session.user.isOnboarded = token.isOnboarded as boolean;
+                session.user.profilePicture = token.profilePicture as string;
+                session.user.name = token.name as string;
             }
             return session;
         },

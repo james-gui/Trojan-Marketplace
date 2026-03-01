@@ -11,9 +11,9 @@ interface ServiceCardProps {
 
 export function ServiceCard({ title, location, price, verified = true, onClick }: ServiceCardProps) {
   return (
-    <button
+    <div
       onClick={onClick}
-      className="w-full bg-white border border-slate-200 rounded p-4 hover:border-black transition-colors text-left"
+      className="w-full bg-white border border-slate-200 rounded p-4 hover:border-black transition-colors text-left cursor-pointer"
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
@@ -28,6 +28,6 @@ export function ServiceCard({ title, location, price, verified = true, onClick }
         )}
       </div>
       <div className="text-xl tracking-tight">{price}</div>
-    </button>
+    </div>
   );
 }

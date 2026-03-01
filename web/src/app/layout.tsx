@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { SessionProvider } from "next-auth/react";
 import "./globals.css";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
+import { BalanceProvider } from "@/context/BalanceContext";
 
 export const metadata: Metadata = {
   title: "Trojan Marketplace",
@@ -23,9 +24,11 @@ export default function RootLayout({
       </head>
       <body className="antialiased bg-white text-black">
         <SessionProvider>
-          <SmoothScrollProvider>
-            {children}
-          </SmoothScrollProvider>
+          <BalanceProvider>
+            <SmoothScrollProvider>
+              {children}
+            </SmoothScrollProvider>
+          </BalanceProvider>
         </SessionProvider>
       </body>
     </html>

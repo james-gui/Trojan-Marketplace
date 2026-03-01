@@ -37,7 +37,7 @@ export default function Header({ onAddListing }: { onAddListing?: (data: any) =>
                             className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-slate-700 hover:border-emerald-500 transition-colors"
                         />
                         <button
-                            onClick={() => signOut()}
+                            onClick={() => signOut({ callbackUrl: "/" })}
                             className="p-1.5 rounded-full text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-all"
                             title="Sign Out"
                         >

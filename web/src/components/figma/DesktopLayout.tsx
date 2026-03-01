@@ -17,15 +17,12 @@ export function DesktopLayout({ children, rightPanel }: DesktopLayoutProps) {
   const { balance, isLoading } = useBalance();
 
   const navItems = [
-    { path: '/', label: 'Marketplace', icon: Grid },
+    { path: '/dashboard', label: 'Marketplace', icon: Grid },
     { path: '/engagements', label: 'Requests', icon: FileText },
     { path: '/profile', label: 'Profile', icon: User },
   ];
 
   const isActive = (path: string) => {
-    if (path === '/') {
-      return location.pathname === '/';
-    }
     return location.pathname.startsWith(path);
   };
 

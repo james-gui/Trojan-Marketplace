@@ -10,7 +10,7 @@ export function BottomNavigation() {
   const router = useRouter();
 
   const navItems = [
-    { path: '/', icon: List, label: 'Marketplace' },
+    { path: '/dashboard', icon: List, label: 'Marketplace' },
     { path: '/engagements', icon: FileText, label: 'Requests' },
     { path: '/profile', icon: User, label: 'Profile' },
   ];

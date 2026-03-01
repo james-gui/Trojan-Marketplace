@@ -1,6 +1,56 @@
 "use server";
 
-import { getListingsContainer } from "@/lib/cosmos";
+import { getListingsContainer, getUsersContainer } from "@/lib/cosmos";
+
+// ----------------------------------------------------------------------
+// Users & Onboarding
+// ----------------------------------------------------------------------
+
+export async function getUserProfile(email: string) {
+    try {
+        const container = await getUsersContainer();
+        const querySpec = {
+            query: "SELECT * FROM c WHERE c.email = @email",
+            parameters: [{ name: "@email", value: email }]
+        };
+        const { resources } = await container.items.query(querySpec).fetchAll();
+
+        if (resources.length > 0) {
+            return { success: true, data: resources[0] };
+        }
+        return { success: false, error: "User not found" };
+    } catch (error: any) {
+        console.error("[SERVER ACTION] Failed to get user profile:", error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function completeOnboarding(email: string, name: string, phone: string, profilePic: string) {
+    try {
+        const container = await getUsersContainer();
+        const querySpec = {
+            query: "SELECT * FROM c WHERE c.email = @email",
+            parameters: [{ name: "@email", value: email }]
+        };
+        const { resources } = await container.items.query(querySpec).fetchAll();
+
+        if (resources.length > 0) {
+            const user = resources[0];
+            user.name = name;
+            user.phoneNumber = phone;
+            user.profilePicture = profilePic;
+            user.isOnboarded = true;
+
+            await container.item(user.id, user.id).replace(user);
+            return { success: true, data: user };
+        }
+
+        return { success: false, error: "User not found" };
+    } catch (error: any) {
+        console.error("[SERVER ACTION] Failed to complete onboarding:", error);
+        return { success: false, error: error.message };
+    }
+}
 
 // Type matches our frontend `Listing`
 interface ListingPayload {

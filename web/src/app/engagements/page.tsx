@@ -106,9 +106,9 @@ function ListingCard({
             : (listing.type === "Offer" ? listing.accepterEmail : listing.posterEmail);
 
     return (
-        <button
+        <div
             onClick={onClick}
-            className="w-full bg-white border-2 border-slate-200 rounded p-4 space-y-4 hover:border-black transition-colors text-left"
+            className="w-full bg-white border-2 border-slate-200 rounded p-4 space-y-4 hover:border-black transition-colors text-left cursor-pointer"
         >
             {/* Header */}
             <div className="flex items-start justify-between">
@@ -170,7 +170,7 @@ function ListingCard({
                     )}
                 </div>
             )}
-        </button>
+        </div>
     );
 }
 
@@ -189,9 +189,9 @@ function Section({
     const [open, setOpen] = useState(true);
     return (
         <div className="border-y border-slate-200">
-            <button
+            <div
                 onClick={() => setOpen((o) => !o)}
-                className="w-full flex items-center justify-between px-0 py-4 hover:bg-slate-50 transition-colors"
+                className="w-full flex items-center justify-between px-0 py-4 hover:bg-slate-50 transition-colors cursor-pointer"
             >
                 <div className="flex items-center gap-3">
                     <h2 className="text-base text-black">{title}</h2>
@@ -202,7 +202,7 @@ function Section({
                 ) : (
                     <ChevronDown size={18} strokeWidth={1.5} className="text-slate-400" />
                 )}
-            </button>
+            </div>
             {open && <div className="pb-4 space-y-3">{children}</div>}
         </div>
     );

@@ -16,6 +16,7 @@ export default function CreateListingPage() {
         details: "",
         price: "",
         endsOn: "",
+        type: "Offer" as "Offer" | "Request",
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -34,12 +35,12 @@ export default function CreateListingPage() {
                 location: "USC Campus",
                 time: formData.endsOn,
                 category: "General",
-                type: "Offer",
+                type: formData.type,
                 posterEmail: session.user.email,
             });
 
             if (result.success) {
-                router.push("/");
+                router.push("/dashboard");
             } else {
                 alert("Failed to create listing: " + result.error);
             }
@@ -57,7 +58,7 @@ export default function CreateListingPage() {
             <header className="bg-white border-b border-slate-200 sticky top-0 z-40">
                 <div className="max-w-md mx-auto px-4 h-14 flex items-center justify-between">
                     <button
-                        onClick={() => router.push("/")}
+                        onClick={() => router.push("/dashboard")}
                         className="p-2 hover:bg-slate-50 rounded transition-colors"
                     >
                         <ArrowLeft size={20} strokeWidth={1.5} />
@@ -71,6 +72,35 @@ export default function CreateListingPage() {
 
             <main className="max-w-md mx-auto px-4 py-6">
                 <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Listing Type Toggle */}
+                    <div>
+                        <label className="block mb-2 text-sm text-slate-600 tracking-wide">
+                            LISTING TYPE
+                        </label>
+                        <div className="flex bg-slate-100 p-1 rounded">
+                            <button
+                                type="button"
+                                onClick={() => setFormData({ ...formData, type: "Offer" })}
+                                className={`flex-1 py-2 text-sm rounded transition-all ${formData.type === "Offer"
+                                    ? "bg-white text-black shadow-sm"
+                                    : "text-slate-500 hover:text-slate-700"
+                                    }`}
+                            >
+                                I AM SELLING
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setFormData({ ...formData, type: "Request" })}
+                                className={`flex-1 py-2 text-sm rounded transition-all ${formData.type === "Request"
+                                    ? "bg-white text-black shadow-sm"
+                                    : "text-slate-500 hover:text-slate-700"
+                                    }`}
+                            >
+                                I AM ASKING
+                            </button>
+                        </div>
+                    </div>
+
                     {/* Service Name */}
                     <div>
                         <label className="block mb-2 text-sm text-slate-600 tracking-wide">
